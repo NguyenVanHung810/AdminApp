@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#d6d6d6"
     tools:context=".UpdateOrderStatusActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -28,50 +28,17 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <Spinner
-        android:id="@+id/spinner_status"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="@drawable/spinner_background"
-        android:layout_marginStart="16dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
-
-    <Button
-        android:id="@+id/update_btn"
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:backgroundTint="@color/md_red_500"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:text="Cập nhật"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner_status" />
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+        <include layout="@layout/order_id_layout"></include>
+        <include layout="@layout/update_order_layout"></include>
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/cancel_btn"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:backgroundTint="@color/md_blue_500"
-        android:text="Thoát"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/update_btn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

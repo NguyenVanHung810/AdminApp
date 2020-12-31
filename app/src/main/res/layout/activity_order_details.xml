@@ -41,12 +41,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-
+            <include layout="@layout/order_id_layout"></include>
             <include layout="@layout/order_detail_layout"></include>
-
             <include layout="@layout/product_in_order_list_layout"></include>
             <include layout="@layout/shipping_details_layout"></include>
-
             <include layout="@layout/cart_total_amount_layout"></include>
         </LinearLayout>
     </com.example.adminapp.VerticalScrollview>

@@ -14,10 +14,13 @@
         <!-- Customize your theme here. -->
 
     </style>
+
     <style name="Theme.AdminApp.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="Theme.AdminApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <style name="Theme.AdminApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

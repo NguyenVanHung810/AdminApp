@@ -66,30 +66,25 @@ public class ProductFragment extends Fragment {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.onSaveInstanceState();
         productRecycleView.setLayoutManager(layoutManager);
 
         productAdapter = new ProductAdapter(DBqueries.productModelList);
         productRecycleView.setAdapter(productAdapter);
-
-        DBqueries.loadProductList(getContext(), loaddialog);
-        productAdapter.notifyDataSetChanged();
-
-        tb("create");
-
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-//        loaddialog.show();
-//        if(DBqueries.productModelList.size() < 0){
-//            DBqueries.loadProductList(getContext(), loaddialog);
-//        }
-//        else {
-//            loaddialog.dismiss();
-//        }
-        tb("Start");
+        DBqueries.productModelList.clear();
+        loaddialog.show();
+        if(DBqueries.productModelList.size() == 0){
+            DBqueries.loadProductList(getContext(), loaddialog);
+        }
+        else {
+            loaddialog.dismiss();
+        }
     }
 
     @Override
@@ -113,7 +108,6 @@ public class ProductFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        tb("pause");
     }
 
     private void tb(String s){

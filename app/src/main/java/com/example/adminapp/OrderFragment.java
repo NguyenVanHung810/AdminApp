@@ -45,12 +45,11 @@ public class OrderFragment extends Fragment {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.onSaveInstanceState();
         orderRecycleView.setLayoutManager(layoutManager);
 
         orderItemAdapter = new OrderItemAdapter(DBqueries.orderItemModelList, loadingDialog);
         orderRecycleView.setAdapter(orderItemAdapter);
-
-        DBqueries.loadOrderList(getContext(), orderItemAdapter, loadingDialog);
         orderItemAdapter.notifyDataSetChanged();
 
         return view;
@@ -58,8 +57,15 @@ public class OrderFragment extends Fragment {
 
     @Override
     public void onStart() {
-        DBqueries.orderItemModelList.clear();
-        orderItemAdapter.notifyDataSetChanged();
         super.onStart();
+        orderItemAdapter.notifyDataSetChanged();
+        loadingDialog.show();
+        DBqueries.orderItemModelList.clear();
+        if(DBqueries.orderItemModelList.size() ==0){
+            DBqueries.loadOrderList(getContext(), orderItemAdapter, loadingDialog);
+        }
+        else {
+            loadingDialog.dismiss();
+        }
     }
 }

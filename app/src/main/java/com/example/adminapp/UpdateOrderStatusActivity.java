@@ -5,17 +5,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import es.dmoral.toasty.Toasty;
@@ -24,10 +27,14 @@ public class UpdateOrderStatusActivity extends AppCompatActivity {
 
     private Spinner statusList;
     private Button update, cancel;
-    private ArrayList<String> order_status;
+    private ArrayList<String> order_status_list;
     private String status;
     private Intent intent;
 
+    private SimpleDateFormat simpleDateFormat;
+
+    private TextView orderId, ordered_date, orderstatus;
+    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +44,12 @@ public class UpdateOrderStatusActivity extends AppCompatActivity {
         statusList = findViewById(R.id.spinner_status);
         update = findViewById(R.id.update_btn);
         cancel = findViewById(R.id.cancel_btn);
-        order_status = new ArrayList<>();
+        order_status_list = new ArrayList<>();
         intent = getIntent();
+
+        orderId = findViewById(R.id.order_id);
+        ordered_date = findViewById(R.id.ordered_date);
+        orderstatus = findViewById(R.id.order_status);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -53,15 +64,25 @@ public class UpdateOrderStatusActivity extends AppCompatActivity {
             }
         });
 
-        order_status = getIntent().getStringArrayListExtra("statusList");
+        position = getIntent().getIntExtra("position", -1);
+        final OrderItemModel orderItemModel = DBqueries.orderItemModelList.get(position);
+        order_status_list = getIntent().getStringArrayListExtra("statusList");
 
-        ArrayAdapter<String> adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, order_status);
+        simpleDateFormat = new SimpleDateFormat("EEE, dd MMM YYYY, hh:mm aa");
+
+        orderId.setText("Mã đơn hàng: "+ orderItemModel.getOrderId());
+        ordered_date.setText("Ngày đặt hàng: "+simpleDateFormat.format(orderItemModel.getOrderedDate()));
+        orderstatus.setText(orderItemModel.getOrderStatus());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, order_status_list);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusList.setAdapter(adapter);
 
         statusList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLUE);
+                ((TextView) parent.getChildAt(0)).setTextSize(16);
                 status = parent.getItemAtPosition(position).toString();
             }
 
@@ -80,6 +101,7 @@ public class UpdateOrderStatusActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
                             Toasty.success(getApplicationContext(), "Cập nhật thành công !!!", Toasty.LENGTH_SHORT).show();
+                            finish();
                         }
                         else {
                             Toasty.error(getApplicationContext(), "Cập nhật không thành công !!!", Toasty.LENGTH_SHORT).show();

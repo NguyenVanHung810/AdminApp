@@ -9,7 +9,6 @@ import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -31,6 +30,8 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView orderedBody, shippedBody, packedBody, deliveredBody;
     private TextView fullname, fullladdress, phonenumber;
     private TextView totalItems, totalItemsPrice, deliveryPrice, savedAmount, totalAmount;
+
+    private TextView orderId, ordered_Date, orderStatus;
 
     private ListView listView;
     private ArrayList<ProductsInOrderModel> products;
@@ -77,6 +78,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
         deliveryPrice = findViewById(R.id.delivery_price);
         totalAmount = findViewById(R.id.total_price);
 
+        orderId = findViewById(R.id.order_id);
+        ordered_Date = findViewById(R.id.ordered_date);
+        orderStatus = findViewById(R.id.order_status);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Xem chi tiết đơn hàng");
@@ -93,13 +98,18 @@ public class OrderDetailsActivity extends AppCompatActivity {
         final OrderItemModel orderItemModel = DBqueries.orderItemModelList.get(position);
 
         products = orderItemModel.getProducts();
+        
+        simpleDateFormat = new SimpleDateFormat("EEE, dd MMM YYYY hh:mm aa");
+        orderId.setText("Mã đơn hàng: "+orderItemModel.getOrderId());
+        ordered_Date.setText("Ngày đặt hàng: "+ simpleDateFormat.format(orderItemModel.getOrderedDate()));
+        orderStatus.setText(orderItemModel.getOrderStatus());
+
 
 
         adapter = new ProductsInOrderAdapter(getApplicationContext(), R.layout.products_in_order_layout, products);
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
-        simpleDateFormat = new SimpleDateFormat("EEE, dd MMM YYYY hh:mm aa");
         switch (orderItemModel.getOrderStatus()) {
             case "Ordered":
                 orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.md_green_500)));

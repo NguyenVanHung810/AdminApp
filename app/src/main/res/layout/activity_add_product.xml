@@ -91,7 +91,7 @@
             <EditText
                 android:id="@+id/product_title"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
@@ -106,7 +106,7 @@
             <EditText
                 android:id="@+id/product_price"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
@@ -122,7 +122,7 @@
             <EditText
                 android:id="@+id/product_cutted_price"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
@@ -137,7 +137,7 @@
             <EditText
                 android:id="@+id/stock_quantity"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
@@ -152,7 +152,7 @@
             <EditText
                 android:id="@+id/max_quantity"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
@@ -167,7 +167,7 @@
             <Spinner
                 android:id="@+id/spinner_category"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_margin="5dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
@@ -177,7 +177,7 @@
             <Spinner
                 android:id="@+id/spinner_brand"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_margin="5dp"
                 android:paddingRight="10dp"
                 android:paddingLeft="10dp"

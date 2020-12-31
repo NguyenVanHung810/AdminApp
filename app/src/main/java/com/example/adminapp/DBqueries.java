@@ -23,12 +23,19 @@ import es.dmoral.toasty.Toasty;
 
 public class DBqueries {
 
+    public static String email,fullname, phone;
     public static FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     public static List<ProductModel> productModelList = new ArrayList<>();
     public static List<Long> longList = new ArrayList<>();
     public static long index;
 
     public static List<OrderItemModel> orderItemModelList = new ArrayList<>();
+
+    public static void clearData(){
+        productModelList.clear();
+        longList.clear();
+        orderItemModelList.clear();
+    }
 
     public static void loadProductList(Context context, Dialog dialog) {
         productModelList.clear();

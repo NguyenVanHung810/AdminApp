@@ -10,6 +10,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -154,6 +155,8 @@ public class AddProductActivity extends AppCompatActivity {
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLUE);
+                ((TextView) parent.getChildAt(0)).setTextSize(16);
                 id_cate = position;
                 cate = categoryIdList.get(position);
                 Toasty.error(AddProductActivity.this, cate, Toasty.LENGTH_SHORT).show();
@@ -182,6 +185,8 @@ public class AddProductActivity extends AppCompatActivity {
         brandSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLUE);
+                ((TextView) parent.getChildAt(0)).setTextSize(16);
                 id_brand = position;
                 Toasty.error(AddProductActivity.this, parent.getItemAtPosition(position).toString(), Toasty.LENGTH_SHORT).show();
             }

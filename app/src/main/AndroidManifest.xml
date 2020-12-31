@@ -15,8 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AdminApp">
         <activity
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:name=".OrderDetailsActivity"></activity>
+            android:name=".UpdateUserInfoActivity"
+            android:label="@string/title_activity_update_user_info"
+            android:theme="@style/Theme.AdminApp.NoActionBar"></activity>
+        <activity
+            android:name=".Login_Register_ResetPassword_Activity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".OrderDetailsActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".UpdateOrderStatusActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
@@ -34,9 +41,6 @@
             android:theme="@style/Theme.AdminApp.NoActionBar" />
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/Theme.AdminApp.NoActionBar" />
-        <activity
-            android:name=".MainActivity"
             android:theme="@style/Theme.AdminApp.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,6 +48,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.AdminApp.NoActionBar"></activity>
     </application>
 
 </manifest>

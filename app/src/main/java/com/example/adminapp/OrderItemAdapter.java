@@ -1,46 +1,23 @@
 package com.example.adminapp;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.BounceInterpolator;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Transaction;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.ViewHolder>{
     private List<OrderItemModel> orderItemModelList;
@@ -106,23 +83,35 @@ public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.View
             ArrayList<String> statusList = new ArrayList<>();
 
             if(status.equals("Ordered")){
-                statusList.add("Packed");
-                statusList.add("Cancelled");
+                if(cr){
+                    order_item_layout.setBackgroundResource(R.color.md_red_300);
+                    statusList.add("Cancelled");
+                }
+                else {
+                    statusList.add("Packed");
+                    statusList.add("Cancelled");
+                }
             }
             else if(status.equals("Packed")){
-                statusList.add("Shipped");
-                statusList.add("Cancelled");
+                if(cr){
+                    order_item_layout.setBackgroundResource(R.color.md_red_300);
+                    statusList.add("Cancelled");
+                }
+                else {
+                    statusList.add("Shipped");
+                    statusList.add("Cancelled");
+                }
             }
             else if(status.equals("Shipped")){
-                statusList.add("Delivery");
+                statusList.add("Delivered");
             }
             else if(status.equals("Delivered")){
-                order_item_layout.setBackgroundResource(R.color.md_green_300);
-                update_order_status.setVisibility(View.GONE);
+                update_order_status.setImageResource(R.drawable.success_order);
+                update_order_status.setEnabled(false);
             }
             else if(status.equals("Cancelled")){
-                order_item_layout.setBackgroundResource(R.color.md_red_300);
-                update_order_status.setVisibility(View.GONE);
+                update_order_status.setImageResource(R.drawable.cancel_order);
+                update_order_status.setEnabled(false);
             }
 
 
@@ -132,6 +121,7 @@ public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.View
                     Intent updateOrderStatusIntent = new Intent(itemView.getContext(), UpdateOrderStatusActivity.class);
                     updateOrderStatusIntent.putExtra("id", id);
                     updateOrderStatusIntent.putStringArrayListExtra("statusList", statusList);
+                    updateOrderStatusIntent.putExtra("position", position);
                     itemView.getContext().startActivity(updateOrderStatusIntent);
                 }
             });
