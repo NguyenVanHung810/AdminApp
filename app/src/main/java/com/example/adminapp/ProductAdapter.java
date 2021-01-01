@@ -40,6 +40,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.Viewhold
         this.productModelList = productModelList;
     }
 
+    public List<ProductModel> getProductModelList() {
+        return productModelList;
+    }
+
+    public void setProductModelList(List<ProductModel> productModelList) {
+        this.productModelList = productModelList;
+    }
 
     @NonNull
     @Override
@@ -61,8 +68,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.Viewhold
         String cp = productModelList.get(position).getCuttedPrice();
         boolean pm = productModelList.get(position).getCOD();
         boolean is = productModelList.get(position).getInStock();
+        String cate_id = productModelList.get(position).getCategory_Id();
+        String brand_id = productModelList.get(position).getBrand_Id();
 
-        holder.setData(id, url, desc, tt, rating, tr, pp, cp, pm, position, is);
+        holder.setData(id, url, desc, tt, rating, tr, pp, cp, pm, position, is, cate_id, brand_id);
 
         if(lastposition < position) {
             Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in);
@@ -99,7 +108,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.Viewhold
             deleteBtn = (ImageButton) itemView.findViewById(R.id.btn_del);
             editBtn = (ImageButton) itemView.findViewById(R.id.btn_edit);
         }
-        private void setData(String id, String url, String desc, String title, String averageRate, long tr, String pp, String cp, boolean pm, int index, boolean instock){
+        private void setData(String id, String url, String desc, String title, String averageRate, long tr, String pp, String cp, boolean pm, final int index, boolean instock, String c_id, String b_id){
             Glide.with(itemView.getContext()).load(url).apply(new RequestOptions().placeholder(R.drawable.no_img)).into(productImage);
             productTitle.setText(title);
             LinearLayout linearLayout = (LinearLayout) rating.getParent();
@@ -131,6 +140,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.Viewhold
                     ProductFragment.yes.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            FirebaseFirestore.getInstance().collection("CATEGORIES")
+                                    .document(c_id)
+                                    .collection("BRAND")
+                                    .document(b_id)
+                                    .collection("ITEMS")
+                                    .document(id).delete();
+                            FirebaseFirestore.getInstance().collection("CATEGORIES")
+                                    .document("HOME")
+                                    .collection("TOP_DEALS")
+                                    .document("HCbOkJXjK7jRqkBe77oj")
+                                    .collection("ITEMS")
+                                    .document(id).delete();
                             FirebaseFirestore.getInstance().collection("PRODUCTS").document(id)
                                     .delete()
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -165,11 +186,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.Viewhold
                 public void onClick(View v) {
                     Intent updateProductIntent = new Intent(itemView.getContext(), UpdateProductActivity.class);
                     updateProductIntent.putExtra("id", id);
-                    updateProductIntent.putExtra("title", title);
-                    updateProductIntent.putExtra("price", pp);
-                    updateProductIntent.putExtra("cutted_price", cp);
-                    updateProductIntent.putExtra("desc", desc);
-                    updateProductIntent.putExtra("image", url);
+                    updateProductIntent.putExtra("position", index);
                     itemView.getContext().startActivity(updateProductIntent);
                 }
             });

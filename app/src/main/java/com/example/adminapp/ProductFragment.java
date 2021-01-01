@@ -99,6 +99,9 @@ public class ProductFragment extends Fragment {
             case R.id.add_product:
                 startActivity(new Intent(getContext(), AddProductActivity.class));
                 return false;
+            case R.id.search_product:
+                startActivity(new Intent(getContext(), SearchActivity.class));
+                return false;
             default:
                 break;
         }

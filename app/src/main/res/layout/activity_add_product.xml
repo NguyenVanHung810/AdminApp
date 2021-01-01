@@ -101,7 +101,7 @@
                 android:paddingRight="20dp"
                 android:textColor="#000000"
                 android:textColorHint="#000000"
-                android:textSize="20dp" />
+                android:textSize="18dp" />
 
             <EditText
                 android:id="@+id/product_price"
@@ -116,7 +116,7 @@
                 android:paddingRight="20dp"
                 android:textColor="#000000"
                 android:textColorHint="#000000"
-                android:textSize="20dp" />
+                android:textSize="18dp" />
 
 
             <EditText
@@ -132,7 +132,7 @@
                 android:paddingRight="20dp"
                 android:textColor="#000000"
                 android:textColorHint="#000000"
-                android:textSize="20dp" />
+                android:textSize="18dp" />
 
             <EditText
                 android:id="@+id/stock_quantity"
@@ -147,7 +147,7 @@
                 android:paddingRight="20dp"
                 android:textColor="#000000"
                 android:textColorHint="#000000"
-                android:textSize="20dp" />
+                android:textSize="18dp" />
 
             <EditText
                 android:id="@+id/max_quantity"
@@ -162,7 +162,7 @@
                 android:paddingRight="20dp"
                 android:textColor="#000000"
                 android:textColorHint="#000000"
-                android:textSize="20dp" />
+                android:textSize="18dp" />
 
             <Spinner
                 android:id="@+id/spinner_category"

@@ -10,6 +10,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -17,10 +18,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -32,13 +37,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,8 +62,26 @@ public class UpdateProductActivity extends AppCompatActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ImageButton delete_img, change_img;
 
+    private EditText stock_quantity, max_quantity;
+
+    private Spinner cateSpinner;
+    private Spinner brandSpinner;
+
     private Boolean updatePhoto = false;
     private Uri uri;
+
+    int id_cate = 0;
+    int id_brand = 0;
+    String cate;
+    int s = 0;
+
+    int position_cate;
+    int position_brand;
+
+    ArrayList<String> categoryIdList;
+    ArrayList<String> categoryNameList;
+    ArrayList<String> brandNameList;
+    ArrayList<String> brandIdList;
 
     private Dialog loadingDialog;
     private StorageReference mStorageRef;
@@ -66,7 +92,7 @@ public class UpdateProductActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Cập nhật tình trạng đơn hàng");
+        getSupportActionBar().setTitle("Cập nhật thông tin sản phẩm");
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -94,14 +120,109 @@ public class UpdateProductActivity extends AppCompatActivity {
         image = (ImageView) findViewById(R.id.product_image);
         delete_img = (ImageButton) findViewById(R.id.delete_img_btn);
         change_img = (ImageButton) findViewById(R.id.change_img_btn);
+        cateSpinner = (Spinner) findViewById(R.id.spinner_category);
+        brandSpinner = (Spinner) findViewById(R.id.spinner_brand);
+        stock_quantity = (EditText) findViewById(R.id.stock_quantity);
+        max_quantity = (EditText) findViewById(R.id.max_quantity);
 
-        title.setText(intent.getStringExtra("title"));
-        price.setText(intent.getStringExtra("price"));
-        cutted_price.setText(intent.getStringExtra("cutted_price"));
-        desc.setText(intent.getStringExtra("desc"));
-        Glide.with(getApplicationContext()).load(intent.getStringExtra("image")).apply(new RequestOptions().placeholder(R.drawable.no_img)).into(image);
+        final ProductModel productModel = DBqueries.productModelList.get(intent.getIntExtra("position", -1));
+
+        title.setText(productModel.getProductTitle());
+        price.setText(productModel.getProductPrice());
+        cutted_price.setText(productModel.getCuttedPrice());
+        desc.setText(productModel.getProductDesc());
+        Glide.with(getApplicationContext()).load(productModel.getProductImage()).apply(new RequestOptions().placeholder(R.drawable.no_img)).into(image);
 
         String id = intent.getStringExtra("id");
+
+        categoryIdList = new ArrayList<String>();
+        categoryNameList = new ArrayList<String>();
+        brandNameList = new ArrayList<>();
+        brandIdList = new ArrayList<>();
+
+        ArrayAdapter<String> adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoryNameList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        cateSpinner.setAdapter(adapter);
+
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, brandNameList);
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        brandSpinner.setAdapter(adapter1);
+
+        FirebaseFirestore.getInstance().collection("CATEGORIES")
+                .orderBy("index")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                if(s==0){
+                                    s = 1;
+                                }
+                                else {
+                                    categoryIdList.add(documentSnapshot.getId());
+                                    categoryNameList.add(documentSnapshot.getString("categoryName"));
+                                }
+                            }
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            String error = task.getException().toString();
+                            Toasty.error(getApplicationContext(), error, Toasty.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        cateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                parent.getChildAt(position_cate);
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.RED);
+                ((TextView) parent.getChildAt(0)).setTextSize(18);
+                id_cate = position;
+                cate = categoryIdList.get(position);
+                brandNameList.clear();
+                brandIdList.clear();
+                FirebaseFirestore.getInstance().collection("CATEGORIES").document(cate).collection("BRAND")
+                        .orderBy("index")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                    brandIdList.add(documentSnapshot.getId());
+                                    brandNameList.add(documentSnapshot.get("layout_title").toString());
+                                }
+                                adapter1.notifyDataSetChanged();
+                            }
+                        });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        brandSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.RED);
+                ((TextView) parent.getChildAt(0)).setTextSize(18);
+                id_brand = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        position_cate = adapter.getPosition("Laptop");
+        cateSpinner.setSelection(position_cate);
+
+        position_brand = adapter.getPosition("Acer");
+        brandSpinner.setSelection(position_brand);
+
 
         save = (Button) findViewById(R.id.add_btn);
         cancel = (Button) findViewById(R.id.cancel_btn);
@@ -117,22 +238,39 @@ public class UpdateProductActivity extends AppCompatActivity {
                 productData.put("product_description", desc.getText().toString());
                 productData.put("cutted_price", cutted_price.getText().toString());
                 productData.put("product_image", uri.toString());
+                productData.put("stock_quantity", 10);
+                productData.put("max_quantity", 10);
+                productData.put("Category_Id", categoryIdList.get(id_cate));
+                productData.put("Brand_Id", brandIdList.get(id_brand));
 
                 db.collection("PRODUCTS").document(id)
                         .update(productData)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
-                            public void onSuccess(Void aVoid) {
-                                DBqueries.productModelList.clear();
-                                Toasty.success(getApplicationContext(),"Cập nhật thành công !!!", Toasty.LENGTH_SHORT).show();
-                                finish();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toasty.success(getApplicationContext(),"Cập nhật thất bại !!!", Toasty.LENGTH_SHORT).show();
-                                finish();
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    Map<String, Object> item = new HashMap<>();
+                                    item.put("product_image", uri.toString());
+                                    item.put("product_title", title.getText().toString());
+                                    item.put("product_subtitle", desc.getText().toString());
+                                    item.put("product_price", price.getText().toString());
+
+                                    db.collection("CATEGORIES").document(productModel.getCategory_Id()).collection("BRAND")
+                                            .document(productModel.getBrand_Id())
+                                            .collection("ITEMS")
+                                            .document(productModel.getProductID()).delete();
+                                    db.collection("CATEGORIES").document(categoryIdList.get(id_cate)).collection("BRAND")
+                                            .document(brandIdList.get(id_brand))
+                                            .collection("ITEMS")
+                                            .document(id).set(item);
+                                    DBqueries.productModelList.clear();
+                                    Toasty.success(getApplicationContext(),"Cập nhật thành công !!!", Toasty.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                                else {
+                                    Toasty.success(getApplicationContext(),"Cập nhật thất bại !!!", Toasty.LENGTH_SHORT).show();
+                                    finish();
+                                }
                             }
                         });
             }

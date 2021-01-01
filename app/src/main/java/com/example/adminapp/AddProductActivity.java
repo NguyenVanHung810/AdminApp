@@ -52,6 +52,7 @@ import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 
+import static com.example.adminapp.DBqueries.email;
 import static com.example.adminapp.DBqueries.firebaseFirestore;
 
 public class AddProductActivity extends AppCompatActivity {
@@ -69,6 +70,7 @@ public class AddProductActivity extends AppCompatActivity {
     long nop = 0;
     long next=0;
     String cate;
+    int s = 0;
 
     ArrayList<String> categoryIdList;
     ArrayList<String> categoryNameList;
@@ -142,8 +144,13 @@ public class AddProductActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                categoryIdList.add(documentSnapshot.getId());
-                                categoryNameList.add(documentSnapshot.getString("categoryName"));
+                                if(s==0){
+                                    s = 1;
+                                }
+                                else {
+                                    categoryIdList.add(documentSnapshot.getId());
+                                    categoryNameList.add(documentSnapshot.getString("categoryName"));
+                                }
                             }
                             adapter.notifyDataSetChanged();
                         } else {
@@ -155,11 +162,10 @@ public class AddProductActivity extends AppCompatActivity {
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLUE);
-                ((TextView) parent.getChildAt(0)).setTextSize(16);
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.RED);
+                ((TextView) parent.getChildAt(0)).setTextSize(18);
                 id_cate = position;
                 cate = categoryIdList.get(position);
-                Toasty.error(AddProductActivity.this, cate, Toasty.LENGTH_SHORT).show();
                 brandNameList.clear();
                 brandIdList.clear();
                 FirebaseFirestore.getInstance().collection("CATEGORIES").document(cate).collection("BRAND")
@@ -185,10 +191,9 @@ public class AddProductActivity extends AppCompatActivity {
         brandSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLUE);
-                ((TextView) parent.getChildAt(0)).setTextSize(16);
+                ((TextView) parent.getChildAt(0)).setTextColor(Color.RED);
+                ((TextView) parent.getChildAt(0)).setTextSize(18);
                 id_brand = position;
-                Toasty.error(AddProductActivity.this, parent.getItemAtPosition(position).toString(), Toasty.LENGTH_SHORT).show();
             }
 
             @Override
@@ -279,19 +284,9 @@ public class AddProductActivity extends AppCompatActivity {
                 tag.add("tablet");
                 product.put("tags", tag);
 
-                FirebaseFirestore.getInstance().collection("CATEGORIES").document(categoryIdList.get(id_cate)).collection("BRAND")
-                        .document(brandIdList.get(id_brand)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            nop = (long) task.getResult().get("no_of_products");
-                            for (long x = 1; x <= nop; x++) {
-                                next = x;
-                            }
-                            next = next + 1;
-                        }
-                    }
-                });
+                product.put("Category_Id", categoryIdList.get(id_cate));
+                product.put("Brand_Id", brandIdList.get(id_brand));
+
 
                 db.collection("PRODUCTS").add(product)
                         .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -300,16 +295,24 @@ public class AddProductActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
 
                                     updatePic(task.getResult().getId());
-                                    Map<String, Object> category = new HashMap<>();
-                                    category.put("no_of_products", nop + 1);
-                                    category.put("product_id_" + next, task.getResult().getId());
-                                    category.put("product_image_" + next, uri.toString());
-                                    category.put("product_title_" + next, title.getText().toString());
-                                    category.put("product_subtitle_" + next, desc.getText().toString());
-                                    category.put("product_price_" + next, price.getText().toString());
+                                    Map<String, Object> item = new HashMap<>();
+                                    item.put("product_image", uri.toString());
+                                    item.put("product_title", title.getText().toString());
+                                    item.put("product_subtitle", desc.getText().toString());
+                                    item.put("product_price", price.getText().toString());
+
 
                                     db.collection("CATEGORIES").document(categoryIdList.get(id_cate)).collection("BRAND")
-                                            .document(brandIdList.get(id_brand)).update(category);
+                                            .document(brandIdList.get(id_brand))
+                                            .collection("ITEMS")
+                                            .document(task.getResult().getId()).set(item);
+
+                                    db.collection("CATEGORIES").document("HOME").collection("TOP_DEALS")
+                                            .document("HCbOkJXjK7jRqkBe77oj")
+                                            .collection("ITEMS")
+                                            .document(task.getResult().getId())
+                                            .set(item);
+
 
                                     DBqueries.productModelList.clear();
                                     ProductFragment.productAdapter.notifyDataSetChanged();
