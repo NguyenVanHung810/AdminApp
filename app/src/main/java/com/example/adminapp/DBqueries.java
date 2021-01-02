@@ -2,6 +2,7 @@ package com.example.adminapp;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,18 +24,77 @@ import es.dmoral.toasty.Toasty;
 
 public class DBqueries {
 
-    public static String email,fullname, phone;
+    public static String email, fullname, phone;
     public static FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     public static List<ProductModel> productModelList = new ArrayList<>();
+    public static List<CategoryModel> categoryModelList = new ArrayList<>();
     public static List<Long> longList = new ArrayList<>();
-    public static long index;
+    public static long product_index;
+    public static long cate_index;
+
+    public static int s = 0;
+
+    public static int productTotals = 0;
+    public static int userTotals = 0;
+    public static int cateTotals = 0;
+    public static int orderTotals = 0;
 
     public static List<OrderItemModel> orderItemModelList = new ArrayList<>();
 
-    public static void clearData(){
+    public static void clearData() {
         productModelList.clear();
         longList.clear();
         orderItemModelList.clear();
+        categoryModelList.clear();
+    }
+
+    public static void loadCategoryList(Context context, Dialog dialog) {
+        categoryModelList.clear();
+        firebaseFirestore.collection("CATEGORIES")
+                .orderBy("index")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        if(s==0){
+                            s = -1;
+                        }
+                        else {
+                            List<BrandModel> brandModelList = new ArrayList<>();
+                            firebaseFirestore.collection("CATEGORIES").document(documentSnapshot.getId()).collection("BRAND")
+                                    .orderBy("index").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        for (DocumentSnapshot snapshot: task.getResult()){
+                                            brandModelList.add(new BrandModel(
+                                                    snapshot.getId(),
+                                                    snapshot.get("layout_title").toString()
+                                            ));
+                                        }
+                                    }
+                                }
+                            });
+                            categoryModelList.add(new CategoryModel(
+                                    documentSnapshot.getId(),
+                                    documentSnapshot.get("icon").toString(),
+                                    documentSnapshot.get("categoryName").toString(),
+                                    (long)documentSnapshot.get("index"),
+                                    brandModelList
+                            ));
+                        }
+                        cate_index = (long) documentSnapshot.get("index");
+                    }
+                    CategoryFragment.categoryAdapter.notifyDataSetChanged();
+                    dialog.dismiss();
+                } else {
+                    dialog.dismiss();
+                    String error = task.getException().getMessage();
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     public static void loadProductList(Context context, Dialog dialog) {
@@ -43,7 +103,7 @@ public class DBqueries {
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                         productModelList.add(new ProductModel(
                                 documentSnapshot.getId(),
@@ -59,12 +119,11 @@ public class DBqueries {
                                 documentSnapshot.get("Category_Id").toString(),
                                 documentSnapshot.get("Brand_Id").toString()
                         ));
-                        index = (long)documentSnapshot.get("index");
+                        product_index = (long) documentSnapshot.get("index");
                     }
                     ProductFragment.productAdapter.notifyDataSetChanged();
                     dialog.dismiss();
-                }
-                else {
+                } else {
                     dialog.dismiss();
                     String error = task.getException().getMessage();
                     Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
@@ -73,23 +132,23 @@ public class DBqueries {
         });
     }
 
-    public static void loadOrderList(Context context, OrderItemAdapter orderItemAdapter, Dialog dialog){
+    public static void loadOrderList(Context context, OrderItemAdapter orderItemAdapter, Dialog dialog) {
         firebaseFirestore.collection("ORDERS").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    for (DocumentSnapshot documentSnapshot: task.getResult()){
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot documentSnapshot : task.getResult()) {
                         ArrayList<ProductsInOrderModel> products = new ArrayList<>();
                         firebaseFirestore.collection("ORDERS").document(documentSnapshot.getId())
                                 .collection("ORDER_ITEMS").orderBy("index").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                for(DocumentSnapshot snapshot: task.getResult()){
+                                for (DocumentSnapshot snapshot : task.getResult()) {
                                     products.add(new ProductsInOrderModel(
                                             snapshot.get("Product_Image").toString(),
                                             snapshot.get("Product_Title").toString(),
                                             snapshot.get("Product_Price").toString(),
-                                            (long)snapshot.get("Product_quantity"),
+                                            (long) snapshot.get("Product_quantity"),
                                             snapshot.get("Cutted_Price").toString()));
                                 }
                             }
@@ -107,7 +166,7 @@ public class DBqueries {
                                 (Date) documentSnapshot.getDate("Cancelled_Date"),
                                 documentSnapshot.getString("Payment_Method"),
                                 documentSnapshot.getString("Delivery_Price"),
-                                (boolean)documentSnapshot.get("Cancellation_requested"),
+                                (boolean) documentSnapshot.get("Cancellation_requested"),
                                 (long) documentSnapshot.get("Total_Items"),
                                 documentSnapshot.get("Discounted_Price").toString(),
                                 (Long) documentSnapshot.get("Total_Items_Price"),
@@ -117,8 +176,7 @@ public class DBqueries {
                     }
                     orderItemAdapter.notifyDataSetChanged();
                     dialog.dismiss();
-                }
-                else {
+                } else {
                     String error = task.getException().toString();
                     Toasty.error(context, error, Toasty.LENGTH_SHORT).show();
                 }
@@ -126,23 +184,66 @@ public class DBqueries {
         });
     }
 
-    public static void getSize(Context context){
+    public static void getSize(Context context) {
         firebaseFirestore.collection("CATEGORIES").document("SMARTPHONE").collection("BRAND")
                 .orderBy("index")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
-                            for (DocumentSnapshot documentSnapshot: task.getResult()){
-                                longList.add((long)documentSnapshot.get("no_of_products"));
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                longList.add((long) documentSnapshot.get("no_of_products"));
                             }
-                        }
-                        else {
+                        } else {
                             String error = task.getException().toString();
                             Toasty.error(context, error, Toasty.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    public static void getUserTotals() {
+        firebaseFirestore.collection("USERS").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot snapshot : task.getResult()) {
+                    userTotals++;
+                }
+            }
+        });
+    }
+
+    public static void getProductTotals() {
+        firebaseFirestore.collection("PRODUCTS").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot snapshot : task.getResult()) {
+                    productTotals++;
+                }
+            }
+        });
+    }
+
+    public static void getOrderTotals() {
+        firebaseFirestore.collection("ORDERS").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot snapshot : task.getResult()) {
+                    orderTotals++;
+                }
+            }
+        });
+    }
+
+    public static void getCateTotals() {
+        firebaseFirestore.collection("CATEGORIES").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot snapshot : task.getResult()) {
+                    cateTotals++;
+                }
+            }
+        });
     }
 }

@@ -112,9 +112,4 @@ public class ProductFragment extends Fragment {
     public void onPause() {
         super.onPause();
     }
-
-    private void tb(String s){
-        Toasty.error(getContext(), s, Toasty.LENGTH_SHORT).show();
-    }
-
 }

@@ -9,15 +9,27 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/admin_logo_app"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AdminApp">
         <activity
+            android:theme="@style/Theme.AdminApp.NoActionBar"
+            android:name=".AddBrandActivity"></activity>
+        <activity
+            android:name=".BrandActivity"
+            android:theme="@style/Theme.AdminApp.NoActionBar" />
+        <activity
+            android:name=".UpdateCategoryActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".AddCategoryActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
             android:name=".SearchActivity"
             android:label="@string/title_activity_search"
-            android:theme="@style/Theme.AdminApp.NoActionBar"></activity>
+            android:theme="@style/Theme.AdminApp.NoActionBar" />
         <activity
             android:name=".UpdateUserInfoActivity"
             android:label="@string/title_activity_update_user_info"
